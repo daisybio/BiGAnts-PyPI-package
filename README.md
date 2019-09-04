@@ -1,4 +1,5 @@
 # BiGAnts: network-constrained biclustering of patients and multi-omics data
+PyPI package
 
 ## Data input
 
@@ -21,6 +22,11 @@ For instance:
 | 3 | 2703       | -0.504701 | 1.295049  | ... | 1.861972  | 0.601808  | 0.191013   |
 | 4 | 26207      | -0.626415 | -0.646977 | ... | 2.331724  | 2.339122  | -0.100924  |
 
+There are 2 example of gene expression datasets that can be placed in the "data" folder
+- GSE30219 - a Non Small Cell Lung Cancer dataset from GEO for patients with either adenocarcinoma or squamous cell carcinome. 
+- TCGA pan cancer dataset with patients that have luminal or basal breast cancer.
+Both can be found [here](https://drive.google.com/drive/folders/1J0XRrklwcV_Cgy_9Ay_6yJrN_x28Cosk?usp=sharing)
+
 ### Network
 
 An interaction network should be present as a tsv table with two columns that represent two interacting genes. **Without a header!**
@@ -35,33 +41,58 @@ For instance:
 | 3 | 6416 | 5932 |
 | 4 | 6416 | 1956 |
 
-## To run the application
+In the data folder (on the github page of the project) there is an example of PPI network from Bioigrid with experementally validated interactions.
 
-The algorithm takes as an imput the following arguments:
-- path_to_expr - path to the numerical data 
-- path_to_net - path to the network file
-- L_min - minimum number of genes in a bicluster
-- L_max - maximal number of genes in a bicluster
+## Installing the package
 
-There are 2 example of gene expression datasets in the folder "data"
-- GSE30219 - a Non Small Cell Lung Cancer dataset from GEO for patients with either adenocarcinoma or squamous cell carcinome. 
-- TCGA pan cancer dataset with patients that have luminal or basal breast cancer.
-And one example of PPI network from Bioigrid with experementally validated interactions.
+To install the package please run:
+`pip install bigants`
 
-To run the algorithm with NSCLC dataset and small subnetworks (between 10 and 15 genes), run the following command:
-` python script_main.py 'data/gse30219.csv' 'data/biogrid.human.entrez.tsv' 10 15`
+## Functions
 
-### Dependencies
+1. bigants.**data_preprocessing**(path_expr, path_net, log2 = False, size = 2000)
+
+Parameters:
+
+- path_to_expr: *string*, path to the numerical data 
+- path_to_net: *string*, path to the network file
+- log2: *bool, (default = False)*, indicates if log2 transformation should be applied to the data 
+- size: *int, optional (default = 2000)* determines number of genes that should be pre-selected by variance for the analysis. Shouldn't be higher than 5000.
+
+Returns:
+
+- GE: *pandas dataframe*, processed expression data
+- G: *networkX graph*, processed network data
+- labels: *dict*, for mapping between real genes/patients IDs and the internal ones
+- rev_labels: *dict*, addtional dictionary for mapping between real genes/patients IDs and the internal ones
+
+2. bigants.**BiGAnts**(GE,G,L_g_min,L_g_max) creates a model for the given data:
+
+Parameters:
+
+- GE: *pandas dataframe*, processed expression data
+- G: *networkX graph*, processed network data
+- L_g_min: *int*, minimal solution subnetwork size
+- L_g_max: *int*, maximal solution subnetwork size
+
+Methods:
+
+bigants.BiGAnts.**run**(self, n_proc = 1, K = 20, evaporation = 0.5, show_plot = False)
+
+- K: *int, default = 20*, number of ants. Less ants - less space exploration. Usually set between 20 and 50      
+- n_proc: *int, default = 1*, number of processes that should be used
+- evaporation, *float, default = 0.5*, the rate at which pheromone evaporates
+- show_plot: *bool, default = False*, set true if convergence plots should be during the analysis
+
+## Example
+
+A minimum application example is given in the file script_main.pyin the project's [github](https://github.com/biomedbigdata/BiGAnts-PyPI-package).
+
+## Dependencies
 
 - pandas
 - numpy
 - networkx
-- multiprocessing
 - matplotlib
 - sklearn
 - scipy
-
-
-
-
-# BiGAnts-PyPI-package
