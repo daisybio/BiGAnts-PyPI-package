@@ -1,0 +1,14 @@
+# Ignore data folder
+bigants/data/
+
+#Ignore python files
+bigants/__pycache__/
+
+# Ignore results files
+bigants/results.csv
+
+# Ignore any test files
+*_test.py
+
+
+

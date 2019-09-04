@@ -1,0 +1,6 @@
+exclude bigants/data
+exclude bigants/script_main.py
+exclude .gitignore
+
+global-exclude *_test.py
+

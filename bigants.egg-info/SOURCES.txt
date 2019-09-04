@@ -1,0 +1,10 @@
+README.md
+setup.py
+bigants/__init__.py
+bigants/ants.py
+bigants/load_data.py
+bigants.egg-info/PKG-INFO
+bigants.egg-info/SOURCES.txt
+bigants.egg-info/dependency_links.txt
+bigants.egg-info/requires.txt
+bigants.egg-info/top_level.txt
