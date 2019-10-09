@@ -1,5 +1,5 @@
-matplotlib
-networkx
-numpy
 pandas
+numpy
+networkx
+matplotlib
 scipy

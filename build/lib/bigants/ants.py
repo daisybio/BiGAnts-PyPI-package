@@ -24,7 +24,7 @@ class BiGAnts(object):
         self.L_g_max = L_g_max
     
         
-    def run(self, n_proc = 1, a = 1, b = 1, K = 20, evaporation  = 0.5, th = 0.5, eps = 0.02, times = 6, clusters = 2, cost_limit = 5, opt = None,show_pher = False, show_plot = False, save = None, show_nets = False):
+    def run(self, n_proc = 1, a = 1, b = 1, K = 20, evaporation = 0.5, th = 0.5, eps = 0.02, times = 6, clusters = 2, cost_limit = 5, opt = None,show_pher = False, show_plot = False, save = None, show_nets = False):
         """
         Parallel implementation of bi-graph Ant Colony Optimisation for Biclustering 
         

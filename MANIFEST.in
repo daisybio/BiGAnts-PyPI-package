@@ -1,6 +1,7 @@
-exclude bigants/data
-exclude bigants/script_main.py
-exclude .gitignore
+prune bigants/data
+
+prune .gitignore
 
 global-exclude *_test.py
+prune bigants/script_main.py
 
