@@ -24,7 +24,9 @@ class BiGAnts(object):
         self.L_g_max = L_g_max
     
         
-    def run(self, n_proc = 1, a = 1, b = 1, K = 20, evaporation = 0.5, th = 0.5, eps = 0.02, times = 6, clusters = 2, cost_limit = 5, max_iter = 200, opt = None,show_pher = False, show_plot = False, save = None, show_nets = False):
+    def run_search(self, n_proc = 1, a = 1, b = 1, K = 20, evaporation = 0.5, th = 0.5, eps = 0.02, 
+            times = 6, clusters = 2, cost_limit = 5, max_iter = 200, opt = None,show_pher = False, 
+            show_plot = False, save = None, show_nets = False):
         """
         Parallel implementation of bi-graph Ant Colony Optimisation for Biclustering 
         
@@ -57,7 +59,7 @@ class BiGAnts(object):
         
         """
         assert self.GE.shape[0] > self.GE.shape[1], "Wrong dimensions of the expression matrix, please pass the transposed version"
-        assert n_proc>0 and type(n_proc) == 'int', "Set a correct number for n_proc, right now the value is {0}".format(n_proc)
+        assert n_proc>0, "Set a correct number for n_proc, right now the value is {0}".format(n_proc)
         assert n_proc <= mp.cpu_count()-1, 'n_proc should not exceed {0}. The value of n_proc was: {1}'.format(mp.cpu_count(), n_proc)
         assert n_proc <= K, 'Number of ants (K) can not be lower as number of processes, please set higher K ot lower n_proc'
         #adjacency matrix 

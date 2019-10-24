@@ -4,15 +4,16 @@
 import sys
 import pandas as pd
 
-import bigants
-
 
 #matplotlib.use('agg')
 from bigants import data_preprocessing
 from bigants import BiGAnts
 
+#from ants import BiGAnts
+
+
 #Set the paths for the data
-path_expr,path_net ='data/gse30219_lung.csv', 'data/biogrid.human.entrez.tsv'
+path_expr,path_net ='../bigants/data/gse30219_lung.csv', '../bigants/data/biogrid.human.entrez.tsv'
 
 #Load and process the data
 GE,G,labels, _= data_preprocessing(path_expr, path_net,log2 = False, size = 2000)
@@ -42,7 +43,7 @@ Run the optimisation on default parameters or specify additionally:
         show_nets - set true if the selected network should be shown at each iteration       
 '''
 
-solution,sc= model.run()
+solution,sc= model.run_search(max_iter = 2)
 
 #Coming back to the original IDs
 patients1 = [str(labels[x]) for x in solution[1][0]]

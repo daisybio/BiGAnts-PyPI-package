@@ -24,7 +24,9 @@ class BiGAnts(object):
         self.L_g_max = L_g_max
     
         
-    def run(self, n_proc = 1, a = 1, b = 1, K = 20, evaporation = 0.5, th = 0.5, eps = 0.02, times = 6, clusters = 2, cost_limit = 5, opt = None,show_pher = False, show_plot = False, save = None, show_nets = False):
+    def run_search(self, n_proc = 1, a = 1, b = 1, K = 20, evaporation = 0.5, th = 0.5, eps = 0.02, 
+            times = 6, clusters = 2, cost_limit = 5, max_iter = 200, opt = None,show_pher = False, 
+            show_plot = False, save = None, show_nets = False):
         """
         Parallel implementation of bi-graph Ant Colony Optimisation for Biclustering 
         
@@ -48,6 +50,7 @@ class BiGAnts(object):
         times - allows faster convergence criteria: stop if the maximum so far was reached more than x times (default 6)
         clusters - # of clusters, right now does not work for more than 2
         cost_limit - defines the radius of the search for ants (default 5)
+        max_iter - maximum number of itaractions allowed (default 200)
         opt - given if the best score is known apriori (in case of simulated data for instance)
         show_pher - set true if plotting of pheromone heatmap at every iteration is desirable (strickly NOT recommended for # of genes > 2000)
         show_plot - set true if convergence plots should be shown
@@ -58,6 +61,7 @@ class BiGAnts(object):
         assert self.GE.shape[0] > self.GE.shape[1], "Wrong dimensions of the expression matrix, please pass the transposed version"
         assert n_proc>0, "Set a correct number for n_proc, right now the value is {0}".format(n_proc)
         assert n_proc <= mp.cpu_count()-1, 'n_proc should not exceed {0}. The value of n_proc was: {1}'.format(mp.cpu_count(), n_proc)
+        assert n_proc <= K, 'Number of ants (K) can not be lower as number of processes, please set higher K ot lower n_proc'
         #adjacency matrix 
         A = nx.adj_matrix(self.G).todense()
         #hurisic information 
@@ -97,9 +101,9 @@ class BiGAnts(object):
         print("probability update takes "+str(round(end-st,3)))
         W = 0 #warnongs
         #counts how many times top score was achieved
-        count_small = 0
+        count_small = 0            
         #termination if the improvments are getting too small or if there are any computentional warnings
-        while np.abs(max_round_score-av_score)>eps and count_small<times and (W<m/3):
+        while np.abs(max_round_score-av_score)>eps and count_small<times and count_big < max_iter:
             #MULTIPROCESSING SCHEMA
             if n_proc > 1:
                 av_score = 0

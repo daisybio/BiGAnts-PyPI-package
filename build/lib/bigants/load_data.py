@@ -5,8 +5,9 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 import networkx as nx
+import csv
 
-def data_preprocessing(path_expr, path_net,log2, gene_list = None, size = 2000):
+def data_preprocessing(path_expr, path_net,log2, size = 2000):
     """
     Raw data processing for further analysis
     
@@ -19,12 +20,14 @@ def data_preprocessing(path_expr, path_net,log2, gene_list = None, size = 2000):
     log2 - log2 transform (if needed)
     size -   specify size of the gene set  for standard deviation preselection. USually optimal values are between 2000 and 5000
     """
-    expr = pd.read_csv(path_expr) 
+    
+    expr = open_file(path_expr)
+    
     expr = expr.set_index(expr.columns[0])
     patients_new = list(set(expr.columns))
 
-
-    net = pd.read_csv(path_net,sep = "\t", header= None)
+        
+    net = open_file(path_net, header = None)
     nodes_ppi = list(set(net[0]).union(set(net[1])))
     genes_ge = list(expr.index)
     new_genes_ge = set([str(x) for x in genes_ge])
@@ -69,3 +72,17 @@ def data_preprocessing(path_expr, path_net,log2, gene_list = None, size = 2000):
     expr.index = np.arange(n)
     expr.columns =  np.arange(n,n+m)
     return expr,G,labels, rev_labels
+
+# allows to determine the delimeter automatically given the path or directly the object
+def open_file(file_name, **kwards):
+    if isinstance(file_name, str):
+        with open(file_name, 'r') as csvfile:
+            dialect = csv.Sniffer().sniff(csvfile.read(1024))
+    else:
+        file_name.seek(0)
+        dialect = csv.Sniffer().sniff(file_name.read(1024))
+    file_name.seek(0)
+
+    file = pd.read_csv(file_name,sep = dialect.delimiter, **kwards)
+    return file
+    
