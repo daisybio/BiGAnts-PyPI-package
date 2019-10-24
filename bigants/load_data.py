@@ -74,11 +74,13 @@ def data_preprocessing(path_expr, path_net,log2, size = 2000):
     expr.columns =  np.arange(n,n+m)
     return expr,G,labels, rev_labels
 
+# allows to determine the delimeter automatically given the path or directly the object
 def open_file(file_name, **kwards):
     if type(file_name) == 'str':
         with open(file_name, 'r') as csvfile:
             dialect = csv.Sniffer().sniff(csvfile.read(1024))
     else:
+        file_name.seek(0)
         dialect = csv.Sniffer().sniff(file_name.read(1024))
     
     file = pd.read_csv(file_name,sep = dialect.delimiter, **kwards)
