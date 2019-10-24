@@ -6,7 +6,7 @@ import numpy as np
 from scipy import stats
 import networkx as nx
 
-def data_preprocessing(path_expr, path_net,log2, gene_list = None, size = 2000):
+def data_preprocessing(path_expr, path_net,log2, size = 2000):
     """
     Raw data processing for further analysis
     
