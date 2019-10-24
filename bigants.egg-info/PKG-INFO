@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: bigants
-Version: 0.0.8
+Version: 0.0.9
 Summary: BiGAnts - a package for network-constrained biclustering of omics data
 Home-page: https://github.com/biomedbigdata/BiGAnts-PyPI-package
 Author: Olga Lazareva

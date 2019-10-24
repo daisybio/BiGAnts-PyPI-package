@@ -81,7 +81,7 @@ def open_file(file_name, **kwards):
     else:
         file_name.seek(0)
         dialect = csv.Sniffer().sniff(file_name.read(1024))
-    file_name.seek(0)
+        file_name.seek(0)
 
     file = pd.read_csv(file_name,sep = dialect.delimiter, **kwards)
     return file
