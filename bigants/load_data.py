@@ -21,17 +21,14 @@ def data_preprocessing(path_expr, path_net,log2, size = 2000):
     log2 - log2 transform (if needed)
     size -   specify size of the gene set  for standard deviation preselection. USually optimal values are between 2000 and 5000
     """
-    with open(path_expr, 'r') as csvfile:
-        dialect = csv.Sniffer().sniff(csvfile.read(1024))
-
-    expr = pd.read_csv(path_expr,sep = dialect.delimiter) 
+    
+    expr = open_file(path_expr)
+    
     expr = expr.set_index(expr.columns[0])
     patients_new = list(set(expr.columns))
 
-    with open(path_net, 'r') as csvfile:
-        dialect = csv.Sniffer().sniff(csvfile.read(1024))
         
-    net = pd.read_csv(path_net,sep = dialect.delimiter, header= None)
+    net = open_file(path_net, header = None)
     nodes_ppi = list(set(net[0]).union(set(net[1])))
     genes_ge = list(expr.index)
     new_genes_ge = set([str(x) for x in genes_ge])
@@ -76,3 +73,14 @@ def data_preprocessing(path_expr, path_net,log2, size = 2000):
     expr.index = np.arange(n)
     expr.columns =  np.arange(n,n+m)
     return expr,G,labels, rev_labels
+
+def open_file(file_name, **kwards):
+    if type(file_name) == 'str':
+        with open(file_name, 'r') as csvfile:
+            dialect = csv.Sniffer().sniff(csvfile.read(1024))
+    else:
+        dialect = csv.Sniffer().sniff(file_name.read(1024))
+    
+    file = pd.read_csv(file_name,sep = dialect.delimiter, **kwards)
+    return file
+    
