@@ -5,6 +5,8 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 import networkx as nx
+import csv
+
 
 def data_preprocessing(path_expr, path_net,log2, size = 2000):
     """
@@ -19,12 +21,17 @@ def data_preprocessing(path_expr, path_net,log2, size = 2000):
     log2 - log2 transform (if needed)
     size -   specify size of the gene set  for standard deviation preselection. USually optimal values are between 2000 and 5000
     """
-    expr = pd.read_csv(path_expr) 
+    with open(path_expr, 'r') as csvfile:
+        dialect = csv.Sniffer().sniff(csvfile.read(1024))
+
+    expr = pd.read_csv(path_expr,sep = dialect.delimiter) 
     expr = expr.set_index(expr.columns[0])
     patients_new = list(set(expr.columns))
 
-
-    net = pd.read_csv(path_net,sep = "\t", header= None)
+    with open(path_net, 'r') as csvfile:
+        dialect = csv.Sniffer().sniff(csvfile.read(1024))
+        
+    net = pd.read_csv(path_net,sep = dialect.delimiter, header= None)
     nodes_ppi = list(set(net[0]).union(set(net[1])))
     genes_ge = list(expr.index)
     new_genes_ge = set([str(x) for x in genes_ge])
