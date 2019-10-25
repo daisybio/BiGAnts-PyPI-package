@@ -3,12 +3,20 @@ PyPI package for conjoint clustering of networks and omics data
 
 An application example is given in the file script_main.py in the project's [GitHub](https://github.com/biomedbigdata/BiGAnts-PyPI-package).
 
-To install the package please run:
+To install the package from PyPI please run:
+
 `pip install bigants` 
+
+To install the package from git:
+
+`git clone https://github.com/biomedbigdata/BiGAnts-PyPI-package`
+
+`python setup.py install`
+
 
 ## Data input
 
-The algorithm needs as an input one CSV matrix with gene expression/methylation/any other numerical data and one TSV file with a network.
+The algorithm needs as an input one CSV matrix with gene expression/methylation/any other numerical data and one CSV file with a network.
 
 ### Numerical data
 
@@ -34,7 +42,7 @@ Both can be found [here](https://drive.google.com/drive/folders/1J0XRrklwcV_Cgy_
 
 ### Network
 
-An interaction network should be present as a TSV table with two columns that represent two interacting genes. **Without a header!**
+An interaction network should be present as a CSV table with two columns that represent two interacting genes. **Without a header!**
 
 For instance:
 
@@ -82,4 +90,50 @@ bigants.BiGAnts.**run**(self, n_proc = 1, K = 20, evaporation = 0.5, show_plot =
 - K: *int, default = 20*, number of ants. Fewer ants - less space exploration. Usually set between 20 and 50      
 - n_proc: *int, default = 1*, number of processes that should be used
 - evaporation, *float, default = 0.5*, the rate at which pheromone evaporates
-- show_plot: *bool, default = False*, set true if convergence plots should be during the analysis
+- show_plot: *bool, default = False*, set true if convergence plots should be shown during the analysis
+
+# Example
+
+Import the package:
+
+```python
+import pandas as pd
+from bigants import data_preprocessing
+from bigants import BiGAnts
+```
+Set the paths to the expression matrix and the PPI network:
+
+```python
+path_expr,path_net ='../bigants/data/gse30219_lung.csv', '../bigants/data/biogrid.human.entrez.tsv'
+```
+Load and process the data:
+
+```python
+GE,G,labels, _= data_preprocessing(path_expr, path_net)
+```
+Set the size of subnetworks:
+```python
+L_g_min = 10
+L_g_max = 15
+```
+Set the model and run the search:
+
+```python
+model = BiGAnts(GE,G,L_g_min,L_g_max)
+solution,sc= model.run_search()
+```
+Return to the initial IDs and save the solution
+```python
+patients1 = [str(labels[x]) for x in solution[1][0]]
+patients1 = "|".join(patients1)
+
+patients2 = [str(labels[x]) for x in solution[1][1]]
+patients2 = "|".join(patients2)
+
+genes1 = [str(labels[x]) for x in solution[0][0]]
+genes1 = "|".join(genes1)
+
+genes2 = [str(labels[x]) for x in solution[0][1]]
+genes2 = "|".join(genes2)
+pd.DataFrame([[genes1,genes2,patients1,patients2]],columns = ["genes1","genes2","patients1","patients2"]).to_csv("results.csv")
+```
