@@ -136,7 +136,7 @@ solution,sc= model.run_search()
 ```
 ## Results analysis
 BiGAnts package also allows a user to save the results and perform an initial analysis. 
-The examples below show the basic usage, for more details please use python help() method, e.g. `help(bigants.save_results)`.
+The examples below show the basic usage, for more details please use python help() method, e.g. `help(results.save)`.
 
 1. First of all, the object for results analysis must be created:
 ```python
