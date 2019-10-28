@@ -208,4 +208,4 @@ If you use BiGAnts in your research, we kindly ask you to cite the following pub
 
 ## Contact
 
-If you want to contact us regarding BiGAnts, please write an email to Olga Lazareva at olga.lazareva@wzw.tum.de
+If you want to contact us regarding BiGAnts, please write an email to [Olga Lazareva](olga.lazareva@wzw.tum.de).
