@@ -1,14 +1,34 @@
 # BiGAnts: network-constrained biclustering of patients and multi-omics data
-PyPI package for conjoint clustering of networks and omics data
+## Table of contents
+* [General info](#general-info)
+* [Installation](#installation)
+* [Data input](#data-input)
+* [Main functions](#main-functions)
+* [Example](#example)
+* [Cite](#cite)
+* [Contact](#contact)
 
-An application example is given in the file script_main.py in the project's [GitHub](https://github.com/biomedbigdata/BiGAnts-PyPI-package).
 
-To install the package please run:
+## General info
+PyPI package for conjoint clustering of networks and omics data. BiGants allows to conjointly cluster patients and genes such that (i) biclusters are restricted to functionally related genes connected in molecular interaction networks and (ii)  the expression difference between two subgroups of patients is maximized.
+
+
+## Installation
+
+To install the package from PyPI please run:
+
 `pip install bigants` 
+
+To install the package from git:
+
+`git clone https://github.com/biomedbigdata/BiGAnts-PyPI-package`
+
+`python setup.py install`
+
 
 ## Data input
 
-The algorithm needs as an input one CSV matrix with gene expression/methylation/any other numerical data and one TSV file with a network.
+The algorithm needs as an input one CSV matrix with gene expression/methylation/any other numerical data and one CSV file with a network. 
 
 ### Numerical data
 
@@ -34,7 +54,7 @@ Both can be found [here](https://drive.google.com/drive/folders/1J0XRrklwcV_Cgy_
 
 ### Network
 
-An interaction network should be present as a TSV table with two columns that represent two interacting genes. **Without a header!**
+An interaction network should be present as a CSV table with two columns that represent two interacting genes. **Without a header!**
 
 For instance:
 
@@ -46,9 +66,9 @@ For instance:
 | 3 | 6416 | 5932 |
 | 4 | 6416 | 1956 |
 
-In the data folder (on the [GitHub](https://github.com/biomedbigdata/BiGAnts-PyPI-package) page of the project) there is an example of a PPI network from Bioigrid with experimentally validated interactions.
+There is an example of a PPI network from Bioigrid with experimentally validated interactions [here](https://drive.google.com/drive/folders/1J0XRrklwcV_Cgy_9Ay_6yJrN_x28Cosk?usp=sharing).
 
-## Functions
+## Main functions
 
 1. bigants.**data_preprocessing**(path_expr, path_net, log2 = False, size = 2000)
 
@@ -82,4 +102,86 @@ bigants.BiGAnts.**run**(self, n_proc = 1, K = 20, evaporation = 0.5, show_plot =
 - K: *int, default = 20*, number of ants. Fewer ants - less space exploration. Usually set between 20 and 50      
 - n_proc: *int, default = 1*, number of processes that should be used
 - evaporation, *float, default = 0.5*, the rate at which pheromone evaporates
-- show_plot: *bool, default = False*, set true if convergence plots should be during the analysis
+- show_plot: *bool, default = False*, set true if convergence plots should be shown during the analysis
+
+## Example
+
+Import the package:
+
+```python
+import pandas as pd
+from bigants import data_preprocessing
+from bigants import BiGAnts
+```
+Set the paths to the expression matrix and the PPI network:
+
+```python
+path_expr,path_net ='../bigants/data/gse30219_lung.csv', '../bigants/data/biogrid.human.entrez.tsv'
+```
+Load and process the data:
+
+```python
+GE,G,labels, _= data_preprocessing(path_expr, path_net)
+```
+Set the size of subnetworks:
+```python
+L_g_min = 10
+L_g_max = 15
+```
+Set the model and run the search:
+
+```python
+model = BiGAnts(GE,G,L_g_min,L_g_max)
+solution,sc= model.run_search()
+```
+## Results analysis
+BiGAnts package also allows a user to save the results and perform an initial analysis. 
+The examples below show the basic usage, for more details please use python help() method, e.g. `help(bigants.save_results)`.
+
+1. Return to the initial IDs and save the solution:
+```python
+bigants.save_results(solution, labels, output = "results/results.csv", gene_names = True)
+```
+2. Visualise the resulting networks coloured with respect to their difference in expression patterns in patients clusters:
+```python
+bigants.show_networks(GE, G, solution, labels, output = "results/network.png")
+```
+3. Shows a clustermap of the achieved solution alone or also along with the known patients' groups.
+Just with the BiGAnts results:
+
+```python
+bigants.show_clustermap(GE, G, solution, labels, output = "results/clustermap.png")
+```
+If you have a patient's phenotype you would like to use for comparison, please make sure that patients IDs are exactly (!) matching the data that was used as an input. The data should be represented as a list of two lists, e.g.:
+
+```python
+true_classes = ['GSM748056', 'GSM748059',..], ['GSM748278', 'GSM748279', 'GSM1465989']
+bigants.show_clustermap(GE, G, solution, labels, output = "results/clustermap.png", true_labels = true_classes)
+```
+4. Given a known phenotype in a format described above, BiGAnts can also return Jaccard index of the achieved patients clustering with a given phenotype:
+
+```python
+bigants.jaccard_index(solution, labels, true_labels = true_classes)
+```
+5. BiGAnts is using [gseapy](https://gseapy.readthedocs.io/en/master/index.html) module to provide a user with a python wrapper for Enrichr database. 
+
+```python
+bigants.enrichment_analysis(solution, labels, library = 'GO_Biological_Process_2018', "results")
+```
+After the execution of the given above code, in the /results directory a user can find a table with enriched pathways as well as enrichment plots. Other available libraries can be used as well, e.g. 'GO_Molecular_Function_2018' and 'GO_Cellular_Component_2018'. In total there are 159 libraries available at the moment and the full list can be found by typing:
+
+```python
+import gseapy
+gseapy.get_library_name()
+```
+
+
+## Cite
+If you use BiGAnts in your research, we kindly ask you to cite the following publication:
+
+`Citation details to be announced` 
+
+
+## Contact
+
+If you want to contact us regarding BiGAnts, please write an email to Olga Lazareva at olga.lazareva@wzw.tum.de
