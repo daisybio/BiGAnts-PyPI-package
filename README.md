@@ -138,37 +138,57 @@ solution,sc= model.run_search()
 BiGAnts package also allows a user to save the results and perform an initial analysis. 
 The examples below show the basic usage, for more details please use python help() method, e.g. `help(bigants.save_results)`.
 
-1. Return to the initial IDs and save the solution:
+1. First of all, the object for results analysis must be created:
 ```python
-bigants.save_results(solution, labels, output = "results/results.csv", gene_names = True)
+results = results_analysis(solution, labels)
 ```
-2. Visualise the resulting networks coloured with respect to their difference in expression patterns in patients clusters:
+This will allow to easily access the resulting biclusters in their initial IDs as well as perform a more complicated analysis.
+
+To access IDs of patients in the first bicluster run:
 ```python
-bigants.show_networks(GE, G, solution, labels, output = "results/network.png")
+results.patients1
 ```
-3. Shows a clustermap of the achieved solution alone or also along with the known patients' groups.
+To access IDs of genes IDs in the first bicluster run:
+```python
+results.genes1
+```
+Same logic applies to the second bicluster.
+
+2. To save the solution:
+```python
+#with the initial IDs
+results.save(output = "results/results.csv")
+
+#with gene names
+results.save(output = "results/results.csv", gene_names = True) 
+```
+3. Visualise the resulting networks coloured with respect to their difference in expression patterns in patients clusters:
+```python
+results.show_networks(GE, G, output = "results/network.png")
+```
+4. Visualise a clustermap of the achieved solution alone or also along with the known patients' groups.
 Just with the BiGAnts results:
 
 ```python
-bigants.show_clustermap(GE, G, solution, labels, output = "results/clustermap.png")
+results.show_clustermap(GE, G, solution, labels, output = "results/clustermap.png")
 ```
-If you have a patient's phenotype you would like to use for comparison, please make sure that patients IDs are exactly (!) matching the data that was used as an input. The data should be represented as a list of two lists, e.g.:
+If you have a patient's phenotype you would like to use for comparison, please make sure that patients IDs are exactly (!) matching the IDs that were used as an input. The IDs should be represented as a list of two lists, e.g.:
 
 ```python
 true_classes = ['GSM748056', 'GSM748059',..], ['GSM748278', 'GSM748279', 'GSM1465989']
-bigants.show_clustermap(GE, G, solution, labels, output = "results/clustermap.png", true_labels = true_classes)
+results.show_clustermap(GE, G, solution, labels, output = "results/clustermap.png", true_labels = true_classes)
 ```
-4. Given a known phenotype in a format described above, BiGAnts can also return Jaccard index of the achieved patients clustering with a given phenotype:
+5. Given a known phenotype in a format described above, BiGAnts can also return Jaccard index of the achieved patients clustering with a given phenotype:
 
 ```python
-bigants.jaccard_index(solution, labels, true_labels = true_classes)
+results.jaccard_index(true_labels = true_classes)
 ```
-5. BiGAnts is using [gseapy](https://gseapy.readthedocs.io/en/master/index.html) module to provide a user with a python wrapper for Enrichr database. 
+6. BiGAnts is using [gseapy](https://gseapy.readthedocs.io/en/master/index.html) module to provide a user with a python wrapper for Enrichr database. 
 
 ```python
-bigants.enrichment_analysis(solution, labels, library = 'GO_Biological_Process_2018', "results")
+results.enrichment_analysis(solution, labels, library = 'GO_Biological_Process_2018', "results")
 ```
-After the execution of the given above code, in the /results directory a user can find a table with enriched pathways as well as enrichment plots. Other available libraries can be used as well, e.g. 'GO_Molecular_Function_2018' and 'GO_Cellular_Component_2018'. In total there are 159 libraries available at the moment and the full list can be found by typing:
+After the execution of the given above code, in the */results* directory a user can find a table with enriched pathways as well as enrichment plots. Other available libraries can be used as well, e.g. 'GO_Molecular_Function_2018' and 'GO_Cellular_Component_2018'. In total there are 159 libraries available at the moment and the full list can be found by typing:
 
 ```python
 import gseapy
