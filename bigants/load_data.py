@@ -33,6 +33,7 @@ def data_preprocessing(path_expr, path_net,log2, size = 2000):
     new_genes_ge = set([str(x) for x in genes_ge])
     new_genes_ppi = set([str(x) for x in nodes_ppi])
     intersec_genes = list(set.intersection(new_genes_ge, new_genes_ppi))
+    assert len(intersec_genes) > 0, "The identifiers in the expression file and network file do not match"
     expr.index = [str(x) for x in genes_ge]
     expr = expr.loc[intersec_genes]
     if log2:
