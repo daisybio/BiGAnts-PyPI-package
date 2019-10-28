@@ -10,7 +10,7 @@
 
 
 ## General info
-PyPI package for conjoint clustering of networks and omics data. BiGants allows to conjointly cluster patients and genes such that (i) biclusters are restricted to functionally related genes connected in molecular interaction networks and (ii)  the expression difference between two subgroups of patients is maximized.
+PyPI package for conjoint clustering of networks and omics data. BiGants allows to conjointly cluster patients and genes such that **(i)** biclusters are restricted to functionally related genes connected in molecular interaction networks and **(ii)**  the expression difference between two subgroups of patients is maximized.
 
 
 ## Installation
@@ -28,7 +28,9 @@ To install the package from git:
 
 ## Data input
 
-The algorithm needs as an input one CSV matrix with gene expression/methylation/any other numerical data and one CSV file with a network. 
+The algorithm needs as an input one CSV matrix with gene expression/methylation/any other numerical data and one CSV file with a network.
+
+Please note, that even though the algorithm will accept any IDs, all visualisation tools except entrez genes IDs as an input.
 
 ### Numerical data
 
@@ -66,11 +68,13 @@ For instance:
 | 3 | 6416 | 5932 |
 | 4 | 6416 | 1956 |
 
-There is an example of a PPI network from Bioigrid with experimentally validated interactions [here](https://drive.google.com/drive/folders/1J0XRrklwcV_Cgy_9Ay_6yJrN_x28Cosk?usp=sharing).
+There is an example of a PPI network from BioiGRID with experimentally validated interactions [here](https://drive.google.com/drive/folders/1J0XRrklwcV_Cgy_9Ay_6yJrN_x28Cosk?usp=sharing).
 
 ## Main functions
 
-1. bigants.**data_preprocessing**(path_expr, path_net, log2 = False, size = 2000)
+Here we give a general description of the main functions provided. Please note, that all functions are annotated with dockstrings and therefore the full information can be found with *help()* method, e.g. `help(results.save)`.
+
+1.**data_preprocessing**(path_expr, path_net, log2 = False, size = 2000)
 
 Parameters:
 
@@ -86,7 +90,7 @@ Returns:
 - labels: *dict*, for mapping between real genes/patients IDs and the internal ones
 - rev_labels: *dict*, additional dictionary for mapping between real genes/patients IDs and the internal ones
 
-2. bigants.**BiGAnts**(GE,G,L_g_min,L_g_max) creates a model for the given data:
+2. *BiGAnts**(GE,G,L_g_min,L_g_max) creates a model for the given data:
 
 Parameters:
 
@@ -97,26 +101,26 @@ Parameters:
 
 Methods:
 
-bigants.BiGAnts.**run**(self, n_proc = 1, K = 20, evaporation = 0.5, show_plot = False)
+BiGAnts.**run**(self, n_proc = 1, K = 20, evaporation = 0.5, show_plot = False)
 
 - K: *int, default = 20*, number of ants. Fewer ants - less space exploration. Usually set between 20 and 50      
-- n_proc: *int, default = 1*, number of processes that should be used
+- n_proc: *int, default = 1*, number of processes that should be used(can not be more than K)
 - evaporation, *float, default = 0.5*, the rate at which pheromone evaporates
-- show_plot: *bool, default = False*, set true if convergence plots should be shown during the analysis
+- show_plot: *bool, default = False*, set true if convergence plots should be shown during the iterations
 
 ## Example
 
 Import the package:
 
 ```python
-import pandas as pd
 from bigants import data_preprocessing
 from bigants import BiGAnts
+from bigants import results_analysis
 ```
 Set the paths to the expression matrix and the PPI network:
 
 ```python
-path_expr,path_net ='../bigants/data/gse30219_lung.csv', '../bigants/data/biogrid.human.entrez.tsv'
+path_expr,path_net ='/data/gse30219_lung.csv', '/data/biogrid.human.entrez.tsv'
 ```
 Load and process the data:
 
@@ -138,17 +142,17 @@ solution,sc= model.run_search()
 BiGAnts package also allows a user to save the results and perform an initial analysis. 
 The examples below show the basic usage, for more details please use python help() method, e.g. `help(results.save)`.
 
-1. First of all, the object for results analysis must be created:
+1. First, the object for results analysis must be created:
 ```python
 results = results_analysis(solution, labels)
 ```
-This will allow to easily access the resulting biclusters in their initial IDs as well as perform a more complicated analysis.
+This will allow to easily access the resulting biclusters and their initial IDs as well as perform a more complicated analysis.
 
-To access IDs of patients in the first bicluster run:
+To access IDs of patients in the first bicluster:
 ```python
 results.patients1
 ```
-To access IDs of genes IDs in the first bicluster run:
+To access IDs of genes IDs in the first bicluster:
 ```python
 results.genes1
 ```
@@ -162,7 +166,7 @@ results.save(output = "results/results.csv")
 #with gene names
 results.save(output = "results/results.csv", gene_names = True) 
 ```
-3. Visualise the resulting networks coloured with respect to their difference in expression patterns in patients clusters:
+3. Visualise the resulting networks colored with respect to their difference in expression patterns in patients clusters:
 ```python
 results.show_networks(GE, G, output = "results/network.png")
 ```
@@ -183,7 +187,7 @@ results.show_clustermap(GE, G, solution, labels, output = "results/clustermap.pn
 ```python
 results.jaccard_index(true_labels = true_classes)
 ```
-6. BiGAnts is using [gseapy](https://gseapy.readthedocs.io/en/master/index.html) module to provide a user with a python wrapper for Enrichr database. 
+6. BiGAnts is using [gseapy](https://gseapy.readthedocs.io/en/master/index.html) module to provide a user with a python wrapper for [Enrichr](https://amp.pharm.mssm.edu/Enrichr/) database. 
 
 ```python
 results.enrichment_analysis(solution, labels, library = 'GO_Biological_Process_2018', "results")
