@@ -207,6 +207,7 @@ gseapy.get_library_name()
 BiGants was developed in [Big Data in BioMedicine group](biomedical-big-data.de) at [Chair of Experimental Bioinformatics](https://www.baumbachlab.net/).
 
 If you use BiGAnts in your research, we kindly ask you to cite the following manuscript:
+
 ` Lazareva, O., Van Do, H., Canzar, S., Yuan, K., Baumbach, J., Kacprowski, T., List, M.: BiGAnts: Network-constrained biclustering of patients and omics data. [Submitted]` 
 
 ## Contact
