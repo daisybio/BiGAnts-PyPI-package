@@ -10,7 +10,11 @@
 
 
 ## General info
-PyPI package for conjoint clustering of networks and omics data. BiGants allows to conjointly cluster patients and genes such that **(i)** biclusters are restricted to functionally related genes connected in molecular interaction networks and **(ii)**  the expression difference between two subgroups of patients is maximized.
+Unsupervised learning approaches are frequently employed to identify patient subgroups and biomarkers such as disease-associated genes. Biclustering is a powerful technique often used with expression data to cluster genes along with patients. However, the genes forming biclusters are often not functionally related, complicating interpretation of the results. 
+
+To alleviate this, we developed the network-constrained biclustering approach BiGAnts which **(i)** restricts biclusters to functionally related genes connected in molecular interaction networks and **(ii)** maximizes the expression difference between two subgroups of patients.
+
+![alt text](https://github.com/biomedbigdata/BiGAnts-PyPI-package/blob/master/sc.png)
 
 
 ## Installation
@@ -199,13 +203,14 @@ import gseapy
 gseapy.get_library_name()
 ```
 
-
 ## Cite
-If you use BiGAnts in your research, we kindly ask you to cite the following publication:
+BiGants was developed in [Big Data in BioMedicine group](biomedical-big-data.de) at [Chair of Experimental Bioinformatics](https://www.baumbachlab.net/).
 
-`Citation details to be announced` 
-
+If you use BiGAnts in your research, we kindly ask you to cite the following manuscript:
+` Lazareva, O., Van Do, H., Canzar, S., Yuan, K., Baumbach, J., Kacprowski, T., List, M.: BiGAnts: Network-constrained biclustering of patients and omics data. [Submitted]` 
 
 ## Contact
 
-If you want to contact us regarding BiGAnts, please write an email to [Olga Lazareva](mailto:olga.lazareva@wzw.tum.de?subject=[GitHub]%20BiGAnts%20PyPI).
+If you want to contact us regarding BiGAnts:
+* [Olga Lazareva](mailto:olga.lazareva@wzw.tum.de?subject=[BiGAnts-Web]%20BiGAnts%20WEB)
+* [Markus List](mailto:markus.list@wzw.tum.de?subject=[BiGAnts-Web]%20BiGAnts%20WEB)
