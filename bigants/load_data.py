@@ -37,6 +37,9 @@ def data_preprocessing(path_expr, path_net,log2, size = 2000):
     expr.index = [str(x) for x in genes_ge]
     expr = expr.loc[intersec_genes]
     if log2:
+        minimal = expr.min().min()
+        if minimal <= 0:
+            expr+= np.abs(minimal-1)
         expr = np.log2(expr)        
     
     if size!= None: #std selection
