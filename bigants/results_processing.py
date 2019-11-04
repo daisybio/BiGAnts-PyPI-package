@@ -302,3 +302,19 @@ class results_analysis():
         genes2_name = [mapping[x] for x in self.genes2]
         all_genes_names = genes1_name+genes2_name
         gseapy.enrichr(gene_list=all_genes_names, description='pathway', gene_sets=library, cutoff = 0.05, outdir = output)
+    def convergence_plot(scores, output = None):                
+        plt.rc('font', size=10)          # controls default text sizes
+        plt.rc('axes', titlesize=20)     # fontsize of the axes title
+        plt.rc('xtick', labelsize=20)    # fontsize of the tick labels
+        plt.rc('ytick', labelsize=20)    # fontsize of the tick labels
+        plt.rc('legend', fontsize=20)
+        count_big, scores, avs = scores
+        plt.figure(figsize=(10,6))
+        plt.plot(np.arange(count_big),scores, '-', linewidth=6, color='purple',label = "best score")
+        plt.plot(np.arange(count_big),avs, '--,', linewidth=6,  color='grey',label = "average score") 
+        plt.xlabel("Iterations")
+        plt.ylabel("Score")
+        plt.legend()
+        if output != None:
+            plt.savefig(output+".png")
+        plt.show()
