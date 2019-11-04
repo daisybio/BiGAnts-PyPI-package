@@ -5,6 +5,7 @@
 * [Data input](#data-input)
 * [Main functions](#main-functions)
 * [Example](#example)
+* [Quality control](#quality-control)
 * [Cite](#cite)
 * [Contact](#contact)
 
@@ -14,7 +15,7 @@ Unsupervised learning approaches are frequently employed to identify patient sub
 
 To alleviate this, we developed the network-constrained biclustering approach BiGAnts which **(i)** restricts biclusters to functionally related genes connected in molecular interaction networks and **(ii)** maximizes the expression difference between two subgroups of patients.
 
-![alt text](https://github.com/biomedbigdata/BiGAnts-PyPI-package/blob/master/schema.png?raw=true)
+![alt text](https://github.com/biomedbigdata/BiGAnts-PyPI-package/blob/master/img/schema.png?raw=true)
 
 
 ## Installation
@@ -45,13 +46,13 @@ Numerical data is accepted in the following format:
 
 For instance:
 
-|   | Unnamed: 0 | GSM748056 | GSM748059 | ... | GSM748278 | GSM748279 | GSM1465989 |
-|---|------------|-----------|-----------|-----|-----------|-----------|------------|
-| 0 | 1454       | 0.053769  | 0.117412  | ... | -0.392363 | -1.870838 | -1.432554  |
-| 1 | 201931     | -0.618279 | 0.278637  | ... | 0.803541  | -0.514947 | 2.361925   |
-| 2 | 8761       | 0.215820  | -0.343865 | ... | 0.700430  | 0.073281  | -0.977656  |
-| 3 | 2703       | -0.504701 | 1.295049  | ... | 1.861972  | 0.601808  | 0.191013   |
-| 4 | 26207      | -0.626415 | -0.646977 | ... | 2.331724  | 2.339122  | -0.100924  |
+| Unnamed: 0 | GSM748056 | GSM748059 | ... | GSM748278 | GSM748279 | GSM1465989 |
+|------------|-----------|-----------|-----|-----------|-----------|------------|
+| 1454       | 0.053769  | 0.117412  | ... | -0.392363 | -1.870838 | -1.432554  |
+| 201931     | -0.618279 | 0.278637  | ... | 0.803541  | -0.514947 | 2.361925   |
+| 8761       | 0.215820  | -0.343865 | ... | 0.700430  | 0.073281  | -0.977656  |
+| 2703       | -0.504701 | 1.295049  | ... | 1.861972  | 0.601808  | 0.191013   |
+| 26207      | -0.626415 | -0.646977 | ... | 2.331724  | 2.339122  | -0.100924  |
 
 There are 2 examples of gene expression datasets that can be placed in the "data" folder
 - GSE30219 - a Non-Small Cell Lung Cancer dataset from GEO for patients with either adenocarcinoma or squamous cell carcinoma. 
@@ -64,13 +65,13 @@ An interaction network should be present as a CSV table with two columns that re
 
 For instance:
 
-|   | 6416 | 2318 |
-|---|------|------|
-| 0 | 6416 | 5371 |
-| 1 | 6416 | 351  |
-| 2 | 6416 | 409  |
-| 3 | 6416 | 5932 |
-| 4 | 6416 | 1956 |
+| 6416 | 2318 |
+|------|------|
+| 6416 | 5371 |
+| 6416 | 351  |
+| 6416 | 409  |
+| 6416 | 5932 |
+| 6416 | 1956 |
 
 There is an example of a PPI network from BioiGRID with experimentally validated interactions [here](https://drive.google.com/drive/folders/1J0XRrklwcV_Cgy_9Ay_6yJrN_x28Cosk?usp=sharing).
 
@@ -140,7 +141,7 @@ Set the model and run the search:
 
 ```python
 model = BiGAnts(GE,G,L_g_min,L_g_max)
-solution,sc= model.run_search()
+solution,scores= model.run_search()
 ```
 ## Results analysis
 BiGAnts package also allows a user to save the results and perform an initial analysis. 
@@ -202,6 +203,41 @@ After the execution of the given above code, in the */results* directory a user 
 import gseapy
 gseapy.get_library_name()
 ```
+## Quality control
+
+### Algorithm convergence
+The best way to check if the algorithm produced high-quality results and there are no issues with the parameters is to analyse the convergence plot:
+
+```python
+results.convergence_plot(scores)
+```
+####Converged algorithm:
+
+1. If the maximum score has stabilised for several iterations in a row (default is 6).
+OR
+2. If the average score became equal to the maximal score:
+![text](https://github.com/biomedbigdata/BiGAnts-PyPI-package/blob/master/img/conv1.png?raw=true)
+
+####The algorithm did not converge:
+
+If the average and the maximal score improve over the iterations but do not stabilize then just increase the number of maximally allowed iterations.
+![text](https://github.com/biomedbigdata/BiGAnts-PyPI-package/blob/master/img/conv2.png?raw=true)
+
+If there the scores do not stabilize even after 60-100 iterations, please contact us.
+
+#### Bad probability update
+If you got the following error message:
+```python
+AssertionError: bad probability update
+```
+Then repeat the analysis with th = 0, e.g.:
+```python
+model = BiGAnts(GE,G,L_g_min,L_g_max)
+solution,scores= model.run_search(th = 0)
+
+```
+
+
 ## Cite
 BiGants was developed by the [Big Data in BioMedicine group](biomedical-big-data.de) at [Chair of Experimental Bioinformatics](https://www.baumbachlab.net/).
 
@@ -209,7 +245,6 @@ If you use BiGAnts in your research, we kindly ask you to cite the following man
 ` Lazareva, O., Van Do, H., Canzar, S., Yuan, K., Baumbach, J., Kacprowski, T., List, M.: BiGAnts: Network-constrained biclustering of patients and omics data. [Submitted]` 
 
 ## Contact
-
-If you want to contact us regarding BiGAnts:
+If you have difficulties using BiGAnts, please open an issue at out [GitHub](https://github.com/biomedbigdata/BiGAnts-PyPI-package) repository. Alternatevely, you can write an email to: 
 * [Olga Lazareva](mailto:olga.lazareva@wzw.tum.de?subject=[BiGAnts-Web]%20BiGAnts%20WEB)
 * [Markus List](mailto:markus.list@wzw.tum.de?subject=[BiGAnts-Web]%20BiGAnts%20WEB)
