@@ -302,7 +302,17 @@ class results_analysis():
         genes2_name = [mapping[x] for x in self.genes2]
         all_genes_names = genes1_name+genes2_name
         gseapy.enrichr(gene_list=all_genes_names, description='pathway', gene_sets=library, cutoff = 0.05, outdir = output)
-    def convergence_plot(scores, output = None):                
+    
+    def convergence_plot(self, scores, output = None):
+        '''
+        Shows the convergence plot
+        
+        Attributes:
+        -----------
+        scores - the output of run_search() function
+            
+        output - directory name where results should be saved    
+        '''                
         plt.rc('font', size=10)          # controls default text sizes
         plt.rc('axes', titlesize=20)     # fontsize of the axes title
         plt.rc('xtick', labelsize=20)    # fontsize of the tick labels

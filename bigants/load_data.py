@@ -7,7 +7,7 @@ from scipy import stats
 import networkx as nx
 import csv
 
-def data_preprocessing(path_expr, path_net,log2, zscores = False, size = 2000):
+def data_preprocessing(path_expr, path_net,log2 = True, zscores = True, size = 2000):
     """
     Raw data processing for further analysis
     
@@ -43,9 +43,10 @@ def data_preprocessing(path_expr, path_net,log2, zscores = False, size = 2000):
         expr = np.log2(expr)        
     
     if size!= None: #std selection
-        std_genes = expr.std(axis = 1)
-        std_genes, intersec_genes = zip(*sorted(zip(std_genes, intersec_genes)))
-        genes_for_expr = list(intersec_genes)[len(std_genes)-size:]
+        if len(intersec_genes) > size:
+            std_genes = expr.std(axis = 1)
+            std_genes, intersec_genes = zip(*sorted(zip(std_genes, intersec_genes)))
+            genes_for_expr = list(intersec_genes)[len(std_genes)-size:]
     else:
         genes_for_expr = intersec_genes
         
@@ -79,14 +80,14 @@ def data_preprocessing(path_expr, path_net,log2, zscores = False, size = 2000):
 
 # allows to determine the delimeter automatically given the path or directly the object
 def open_file(file_name, **kwards):
-    if isinstance(file_name, str):
+    if isinstance(file_name, str): 
         with open(file_name, 'r') as csvfile:
             dialect = csv.Sniffer().sniff(csvfile.read(1024))
-    else:
+    else: #the the file is StringIO
         file_name.seek(0)
         dialect = csv.Sniffer().sniff(file_name.read(1024))
         file_name.seek(0)
 
-    file = pd.read_csv(file_name,sep = dialect.delimiter, **kwards)
+    file = pd.read_csv(file_name,sep = dialect.delimiter, low_memory=False, **kwards)
     return file
     
