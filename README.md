@@ -211,16 +211,18 @@ The best way to check if the algorithm produced high-quality results and there a
 ```python
 results.convergence_plot(scores)
 ```
-####Converged algorithm:
+*Converged algorithm:
 
 1. If the maximum score has stabilised for several iterations in a row (default is 6).
 OR
 2. If the average score became equal to the maximal score:
+
 ![text](https://github.com/biomedbigdata/BiGAnts-PyPI-package/blob/master/img/conv1.png?raw=true)
 
-####The algorithm did not converge:
+*The algorithm did not converge:
 
 If the average and the maximal score improve over the iterations but do not stabilize then just increase the number of maximally allowed iterations.
+
 ![text](https://github.com/biomedbigdata/BiGAnts-PyPI-package/blob/master/img/conv2.png?raw=true)
 
 If there the scores do not stabilize even after 60-100 iterations, please contact us.
