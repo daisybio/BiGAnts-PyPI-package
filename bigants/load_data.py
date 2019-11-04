@@ -7,7 +7,7 @@ from scipy import stats
 import networkx as nx
 import csv
 
-def data_preprocessing(path_expr, path_net,log2, size = 2000):
+def data_preprocessing(path_expr, path_net,log2, zscores = False, size = 2000):
     """
     Raw data processing for further analysis
     
@@ -50,8 +50,8 @@ def data_preprocessing(path_expr, path_net,log2, size = 2000):
         genes_for_expr = intersec_genes
         
     expr = expr.loc[genes_for_expr]
-
-    expr = pd.DataFrame(stats.zscore(expr) ,columns = expr.columns, index = expr.index)
+    if zscores:
+        expr = pd.DataFrame(stats.zscore(expr) ,columns = expr.columns, index = expr.index)
     
     labels = dict()
     rev_labels = dict()
