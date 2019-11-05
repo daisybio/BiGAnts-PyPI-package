@@ -3,3 +3,6 @@ numpy
 networkx
 matplotlib
 scipy
+gseapy
+seaborn
+mygene

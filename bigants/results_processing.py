@@ -118,7 +118,7 @@ class results_analysis():
             plt.savefig(output,dpi = 300)
         plt.show()
     
-    def show_clustermap(self, GE, G, output = None, true_labels = None):
+    def show_clustermap(self, GE, G, true_labels = None, output = None):
         '''
         Shows a clustermap of the achieved solution alone or also along with the known patients groups
         
@@ -326,5 +326,5 @@ class results_analysis():
         plt.ylabel("Score")
         plt.legend()
         if output != None:
-            plt.savefig(output+".png")
+            plt.savefig(output)
         plt.show()
