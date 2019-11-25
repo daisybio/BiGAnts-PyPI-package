@@ -241,9 +241,8 @@ solution,scores= model.run_search(th = 0)
 
 ```
 
-
 ## Cite
-BiGants was developed by the [Big Data in BioMedicine group](biomedical-big-data.de) at [Chair of Experimental Bioinformatics](https://www.baumbachlab.net/).
+BiGants was developed by the [Big Data in BioMedicine group](biomedical-big-data.de) and [Computational Systems Medicine group](https://compsysmed.de/) at [Chair of Experimental Bioinformatics](https://www.baumbachlab.net/).
 
 If you use BiGAnts in your research, we kindly ask you to cite the following manuscript:
 ` Lazareva, O., Van Do, H., Canzar, S., Yuan, K., Baumbach, J., Kacprowski, T., List, M.: BiGAnts: Network-constrained biclustering of patients and omics data. [Submitted]` 
@@ -252,3 +251,4 @@ If you use BiGAnts in your research, we kindly ask you to cite the following man
 If you have difficulties using BiGAnts, please open an issue at out [GitHub](https://github.com/biomedbigdata/BiGAnts-PyPI-package) repository. Alternatevely, you can write an email to: 
 * [Olga Lazareva](mailto:olga.lazareva@wzw.tum.de?subject=[BiGAnts-Web]%20BiGAnts%20WEB)
 * [Markus List](mailto:markus.list@wzw.tum.de?subject=[BiGAnts-Web]%20BiGAnts%20WEB)
+* [Tim Kacprowski](mailto:tim.kacprowski@wzw.tum.de?subject=[BiGAnts-Web]%20BiGAnts%20WEB)
