@@ -249,6 +249,6 @@ If you use BiGAnts in your research, we kindly ask you to cite the following man
 
 ## Contact
 If you have difficulties using BiGAnts, please open an issue at out [GitHub](https://github.com/biomedbigdata/BiGAnts-PyPI-package) repository. Alternatevely, you can write an email to: 
-* [Olga Lazareva](mailto:olga.lazareva@wzw.tum.de?subject=[BiGAnts-Web]%20BiGAnts%20WEB)
-* [Markus List](mailto:markus.list@wzw.tum.de?subject=[BiGAnts-Web]%20BiGAnts%20WEB)
-* [Tim Kacprowski](mailto:tim.kacprowski@wzw.tum.de?subject=[BiGAnts-Web]%20BiGAnts%20WEB)
+* [Olga Lazareva](mailto:olga.lazareva@wzw.tum.de?subject=[BiGAnts-PyPI]%20BiGAnts%20WEB)
+* [Markus List](mailto:markus.list@wzw.tum.de?subject=[BiGAnts-PyPI]%20BiGAnts%20WEB)
+* [Tim Kacprowski](mailto:tim.kacprowski@wzw.tum.de?subject=[BiGAnts-PyPI]%20BiGAnts%20WEB)
