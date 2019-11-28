@@ -313,18 +313,23 @@ class results_analysis():
             
         output - directory name where results should be saved    
         '''                
-        plt.rc('font', size=10)          # controls default text sizes
-        plt.rc('axes', titlesize=20)     # fontsize of the axes title
-        plt.rc('xtick', labelsize=20)    # fontsize of the tick labels
-        plt.rc('ytick', labelsize=20)    # fontsize of the tick labels
-        plt.rc('legend', fontsize=20)
+
         count_big, scores, avs = scores
         plt.figure(figsize=(10,6))
-        plt.plot(np.arange(count_big),scores, '-', linewidth=6, color='purple',label = "best score")
-        plt.plot(np.arange(count_big),avs, '--,', linewidth=6,  color='grey',label = "average score") 
-        plt.xlabel("Iterations")
-        plt.ylabel("Score")
-        plt.legend()
+
+        sns.set(style="whitegrid")
+        plt.rc('font', size=13)          # controls default text sizes
+        plt.rc('axes', titlesize=13)     # fontsize of the axes title
+        plt.rc('xtick', labelsize=13)    # fontsize of the tick labels
+        plt.rc('ytick', labelsize=13)    # fontsize of the tick labels
+        plt.rc('legend', fontsize=13)
+        zippedList =  list(zip(scores, avs))
+        wg = pd.DataFrame(zippedList, columns = ["best score","average score"])
+        ax = sns.lineplot(data=wg, palette="tab10", linewidth=2.5)
+        ax.set(xlabel="Iterations")
+        ax.set(ylabel="Score")
+
         if output != None:
             plt.savefig(output)
-        plt.show()
+        plt.show()        
+        
