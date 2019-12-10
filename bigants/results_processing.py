@@ -35,9 +35,26 @@ class results_analysis():
         self.genes2 = [str(self.labels[x]) for x in self.solution[0][1]]
         self.convert = convert
         self.origID = origID
+        
         if convert == True:
             assert origID != None, "Please specify the original gene ID or set 'convert' to False"
-            
+            all_genes  = self.genes1 + self.genes2
+            mg = mygene.MyGeneInfo()
+            out = mg.querymany(all_genes, scopes=self.origID, fields='symbol', species='human', verbose = False)
+            mapping =dict()
+            rev_mapping = dict()
+            for line in out:
+                try:
+                    rev_mapping[line["symbol"]] = line["query"]
+                    mapping[line["query"]] = line["symbol"]
+                except KeyError:
+                    print("{0} was not mapped to any gene name".format(line["query"]))
+                    mapping[line["query"]] = line["query"]
+                    rev_mapping[line["query"]] = line["query"]
+                    
+            self.mapping = mapping
+                    
+                    
         
 
     
@@ -56,23 +73,9 @@ class results_analysis():
         gs1 = self.genes1
         gs2 = self.genes2
         
-        if self.convert:
-            all_genes  = self.genes1 + self.genes2
-            mg = mygene.MyGeneInfo()
-            out = mg.querymany(all_genes, scopes=self.origID, fields='symbol', species='human', verbose = False)
-            mapping =dict()
-            rev_mapping = dict()
-            for line in out:
-                try:
-                    rev_mapping[line["symbol"]] = line["query"]
-                    mapping[line["query"]] = line["symbol"]
-                except KeyError:
-                    print("Entities are not found, mapping to gene names can't be performed. Please set 'convert' to False")
-                    self.convert = False
-                    return()
-                    
-            gs1 = [mapping[x] for x in self.genes1]
-            gs2 = [mapping[x] for x in self.genes2]
+        if self.convert:                    
+            gs1 = [self.mapping[x] for x in self.genes1]
+            gs2 = [self.mapping[x] for x in self.genes2]
     
         gs1 = "|".join(gs1)
         gs2 = "|".join(gs2)
@@ -95,20 +98,8 @@ class results_analysis():
         all_genes_entr  =  self.genes1 + self.genes2
         all_genes = self.solution[0][0] + self.solution[0][1]
         if self.convert:
-            mg = mygene.MyGeneInfo()
-            out = mg.querymany(all_genes_entr, scopes=self.origID, fields='symbol', species='human', verbose = False)
-            mapping =dict()
-            rev_mapping = dict()
-            for line in out:
-                try:
-                    rev_mapping[line["symbol"]] = line["query"]
-                    mapping[line["query"]] = line["symbol"]
-                except KeyError:
-                    print("Entities are not found, mapping to gene names can't be performed. Please set 'convert' to False")
-                    self.convert = False
-                    return()
-            genes1_name = [mapping[x] for x in self.genes1]
-            genes2_name = [mapping[x] for x in self.genes2]
+            genes1_name = [self.mapping[x] for x in self.genes1]
+            genes2_name = [self.mapping[x] for x in self.genes2]
             all_genes_names = genes1_name+genes2_name
         
         #relabel expression matrix and the graph to the actual patients ids and gene names
@@ -117,7 +108,7 @@ class results_analysis():
         GE_small = GE[self.solution[1][0]+self.solution[1][1]].loc[all_genes]
         if self.convert:
             GE_small.index = all_genes_names
-            G_small=nx.relabel_nodes(G_small,mapping)
+            G_small=nx.relabel_nodes(G_small,self.mapping)
         else:
             GE_small.index = all_genes_entr
             
@@ -172,28 +163,13 @@ class results_analysis():
             if len(set(patients).difference(set(true_patients))) != 0: 
                 print("WARNING: Patients ids in true_labels do not match, comparisson wil not be performed")
                 true_labels = None
-                
-        
-        
+
 
         all_genes_entr  = self.genes1 + self.genes2
         all_genes = self.solution[0][0] + self.solution[0][1]
         if self.convert:
-
-            mg = mygene.MyGeneInfo()
-            out = mg.querymany(all_genes_entr, scopes='entrezgene', fields='symbol', species='human', verbose = False)
-            mapping =dict()
-            rev_mapping = dict()
-            for line in out:
-                try:
-                    rev_mapping[line["symbol"]] = line["query"]
-                    mapping[line["query"]] = line["symbol"]
-                except KeyError:
-                    print("Entities are not found, mapping to gene names can't be performed. Please set 'convert' to False")
-                    self.convert = False
-                    return()
-            genes1_name = [mapping[x] for x in self.genes1]
-            genes2_name = [mapping[x] for x in self.genes2]
+            genes1_name = [self.mapping[x] for x in self.genes1]
+            genes2_name = [self.mapping[x] for x in self.genes2]
             all_genes_names = genes1_name + genes2_name
         else:
             genes1_name = self.genes1
@@ -343,21 +319,8 @@ class results_analysis():
         assert library in libs, "the library is not available, check gseapy.get_library_name() for available options"
         assert (self.convert == True) or (self.origID == "symbol"), "EnrichR accepts only gene names as an input, thus please set 'convert' to True and indicate the original gene ID"
 
-        all_genes_entr  = self.genes1 + self.genes2
-        mg = mygene.MyGeneInfo()
-        out = mg.querymany(all_genes_entr, scopes='entrezgene', fields='symbol', species='human', verbose = False)
-        mapping =dict()
-        rev_mapping = dict()
-        for line in out:
-            try:
-                rev_mapping[line["symbol"]] = line["query"]
-                mapping[line["query"]] = line["symbol"]
-            except KeyError:
-                print("{entities are not found, mapping to gene names will not be performed")
-                self.convert = False
-                return()
-        genes1_name = [mapping[x] for x in self.genes1]
-        genes2_name = [mapping[x] for x in self.genes2]
+        genes1_name = [self.mapping[x] for x in self.genes1]
+        genes2_name = [self.mapping[x] for x in self.genes2]
         all_genes_names = genes1_name+genes2_name
         gseapy.enrichr(gene_list=all_genes_names, description='pathway', gene_sets=library, cutoff = 0.05, outdir = output)
     
