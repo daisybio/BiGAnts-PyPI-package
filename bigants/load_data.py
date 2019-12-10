@@ -7,7 +7,7 @@ from scipy import stats
 import networkx as nx
 import csv
 
-def data_preprocessing(path_expr, path_net,log2 = True, zscores = True, size = 2000):
+def data_preprocessing(path_expr, path_net,log2 = True, zscores = True, size = 2000, no_zero = None):
     """
     Raw data processing for further analysis
     
@@ -25,16 +25,29 @@ def data_preprocessing(path_expr, path_net,log2 = True, zscores = True, size = 2
     
     expr = expr.set_index(expr.columns[0])
     patients_new = list(set(expr.columns))
-
+    tot_pats = len(patients_new)
         
     net = open_file(path_net, header = None)
     nodes_ppi = list(set(net[0]).union(set(net[1])))
+    expr.drop_duplicates(inplace=True)
     genes_ge = list(expr.index)
+    expr.index = [str(x) for x in genes_ge]
+    genes_ge = list(set(genes_ge))
+    if no_zero != None:
+        th = round(no_zero * tot_pats)
+        valid_genes = []
+        for x in genes_ge:
+            try:
+                if sum(list(expr.loc[x]>1e-5))> th:
+                    valid_genes.append(x)
+            except TypeError:
+                print("WARNING: entety {0} apears more than once with different values. We recommend to double check your IDs if you want to avoid information loss. You can also just continue with the analysis, but all duplicates will be removed".format(x))
+        genes_ge = valid_genes        
     new_genes_ge = set([str(x) for x in genes_ge])
     new_genes_ppi = set([str(x) for x in nodes_ppi])
     intersec_genes = list(set.intersection(new_genes_ge, new_genes_ppi))
     assert len(intersec_genes) > 0, "The identifiers in the expression file and network file do not match"
-    expr.index = [str(x) for x in genes_ge]
+    
     expr = expr.loc[intersec_genes]
     if log2:
         minimal = expr.min().min()
@@ -47,6 +60,8 @@ def data_preprocessing(path_expr, path_net,log2 = True, zscores = True, size = 2
             std_genes = expr.std(axis = 1)
             std_genes, intersec_genes = zip(*sorted(zip(std_genes, intersec_genes)))
             genes_for_expr = list(intersec_genes)[len(std_genes)-size:]
+        else:
+            genes_for_expr = intersec_genes
     else:
         genes_for_expr = intersec_genes
         
@@ -82,10 +97,10 @@ def data_preprocessing(path_expr, path_net,log2 = True, zscores = True, size = 2
 def open_file(file_name, **kwards):
     if isinstance(file_name, str): 
         with open(file_name, 'r') as csvfile:
-            dialect = csv.Sniffer().sniff(csvfile.read(1024))
-    else: #the the file is StringIO
+            dialect = csv.Sniffer().sniff(csvfile.read(3000))
+    else: #the file is StringIO
         file_name.seek(0)
-        dialect = csv.Sniffer().sniff(file_name.read(1024))
+        dialect = csv.Sniffer().sniff(file_name.read(3000))
         file_name.seek(0)
 
     file = pd.read_csv(file_name,sep = dialect.delimiter, low_memory=False, **kwards)

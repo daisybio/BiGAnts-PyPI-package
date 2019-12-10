@@ -87,6 +87,7 @@ Parameters:
 - path_to_net: *string*, path to the network file
 - log2: *bool, (default = False)*, indicates if log2 transformation should be applied to the data 
 - size: *int, optional (default = 2000)* determines the number of genes that should be pre-selected by variance for the analysis. Shouldn't be higher than 5000.
+- no_zero: (default - none) indicate the fraction of allowed non-zero values for each patient. For instance no_zero = 0.8 means that all genes which have no expression for at least 80% of patients will be removed from the analysis
 
 Returns:
 
@@ -163,18 +164,24 @@ results.genes1
 ```
 Same logic applies to the second bicluster.
 
-2. To save the solution:
+If in the further analysis you would like to use gene names, please set 'convert' to True and specify the original gene IDs, i.e.:
 ```python
-#with the initial IDs
-results.save(output = "results/results.csv")
-
-#with gene names
-results.save(output = "results/results.csv", gene_names = True) 
+results = results_analysis(solution, labels, convert = True, origID = 'entrezgene')
 ```
+Some other options for the original gene ID: ensembl.gene', 'symbol', 'refseq', 'unigene', etc
+For all possibe option please check  the reference for MyGene.info gene query [web service](            http://docs.mygene.info/en/latest/doc/query_service.html#available_fields)
+
+2. To save the solution:
+
+```python
+results.save(output = "results/results.csv")
+```
+
 3. Visualise the resulting networks colored with respect to their difference in expression patterns in patients clusters:
 ```python
 results.show_networks(GE, G, output = "results/network.png")
 ```
+
 4. Visualise a clustermap of the achieved solution alone or also along with the known patients' groups.
 Just with the BiGAnts results:
 
@@ -187,16 +194,19 @@ If you have a patient's phenotype you would like to use for comparison, please m
 true_classes = ['GSM748056', 'GSM748059',..], ['GSM748278', 'GSM748279', 'GSM1465989']
 results.show_clustermap(GE, G, solution, labels, output = "results/clustermap.png", true_labels = true_classes)
 ```
+
 5. Given a known phenotype in a format described above, BiGAnts can also return Jaccard index of the achieved patients clustering with a given phenotype:
 
 ```python
 results.jaccard_index(true_labels = true_classes)
 ```
+
 6. BiGAnts is using [gseapy](https://gseapy.readthedocs.io/en/master/index.html) module to provide a user with a python wrapper for [Enrichr](https://amp.pharm.mssm.edu/Enrichr/) database. 
 
 ```python
 results.enrichment_analysis(solution, labels, library = 'GO_Biological_Process_2018', "results")
 ```
+
 After the execution of the given above code, in the */results* directory a user can find a table with enriched pathways as well as enrichment plots. Other available libraries can be used as well, e.g. 'GO_Molecular_Function_2018' and 'GO_Cellular_Component_2018'. In total there are 159 libraries available at the moment and the full list can be found by typing:
 
 ```python
@@ -234,12 +244,16 @@ If you got the following error message:
 ```python
 AssertionError: bad probability update
 ```
-Then repeat the analysis with th = 0, e.g.:
+It can mean one of the following issues:
+1. The setting of the algorithm is way to restrictive for your problem. You can try to fix it by repeating the analysis with th = 0, or even th = -1 e.g.:
+
 ```python
 model = BiGAnts(GE,G,L_g_min,L_g_max)
 solution,scores= model.run_search(th = 0)
 
 ```
+2. Otherwise, the problem might be related to the way you have processed your data. Please make sure that you do not have not expressed genes for the magority of the patients, that you log2 or even log10 scaled your values.
+
 
 ## Cite
 BiGants was developed by the [Big Data in BioMedicine group](biomedical-big-data.de) and [Computational Systems Medicine group](https://compsysmed.de/) at [Chair of Experimental Bioinformatics](https://www.baumbachlab.net/).

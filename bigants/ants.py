@@ -167,8 +167,9 @@ class BiGAnts(object):
                         n1,n2 = (new_scores[0][0]*new_scores[0][1],new_scores[1][0]*new_scores[1][1])
     
                 av_score = av_score/K
+                avs.append(av_score)
                 #after all ants have finished:
-                scores.append(scores_per_round)
+                scores.append(max_round_score)
                 if max_round_score == max_total_score:
                     count_small = count_small +1
                 end = time.time()
@@ -248,7 +249,7 @@ class BiGAnts(object):
         print("best total score: "+str(max_total_score))
         #print_clusters(GE,best_solution)
         #features(best_solution, GE,G)
-        return(best_solution,max_total_score)
+        return(best_solution,[count_big, scores, avs])
     
 
     def ant_job_paral(self, GE, N, H, th, clusters, probs, a, b, cost, m, n, patients, count_big, cost_limit, L_g_min, L_g_max, G, ge, ants_per_batch, pr, ss, result):
@@ -480,7 +481,24 @@ class BiGAnts(object):
         return(H_full)
     
 
-
+#    def HI_big(data_aco, A_new):
+#        scaler = preprocessing.MinMaxScaler(feature_range=(0, 1))#
+#        H_g_to_g = (data_aco.T.corr())
+#        H_p_to_p = data_aco.corr()
+#        H_g_to_g = scaler.fit_transform(H_g_to_g)
+#        H_p_to_p = scaler.fit_transform(H_p_to_p)
+#        H_g_to_p = scaler.fit_transform(data_aco)
+#        H_full_up = np.concatenate([H_g_to_g,H_g_to_p], axis = 1)
+#        H_full_down = np.concatenate([H_g_to_p.T,H_p_to_p], axis = 1)
+#        H_full =  np.concatenate([H_full_up,H_full_down], axis = 0)*10
+#    #    H_full[H_full < 1] = 1
+#    #    np.fill_diagonal(H_full, 1)
+#        np.fill_diagonal(H_full, 0)
+#        n,_= A_new.shape
+#        H_small = H_full [:n,:n]
+#        H_small =np.multiply(H_small,A_new)
+#        H_full [:n,:n] = H_small
+#        return(H_full)
 
 
     def print_clusters(self, GE, solution):

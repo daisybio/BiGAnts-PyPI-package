@@ -18,16 +18,30 @@ class results_analysis():
         -----------
         solution - the output file of BiGAnts.run_search() function
         labels - data preprocessing labels from data_preprocessing() function
+        convert - indicates if gene IDs should be converted to gene names 
+        for the further results analysis (default - False)
+        origID - indicates the original gene ids used. This field is mandatory for the enrichment analysis.
+        Possible values:
+            'entrezgene', 'ensembl.gene', 'symbol', 'refseq', 'unigene', etc
+            for all possibe option please check  the reference for MyGene.info gene query web service
+            http://docs.mygene.info/en/latest/doc/query_service.html#available_fields
     '''
-    def __init__(self, solution, labels):
+    def __init__(self, solution, labels, convert = False, origID = None):
         self.solution = solution
         self.labels = labels
         self.patients1 = [str(self.labels[x]) for x in self.solution[1][0]]
         self.patients2 = [str(self.labels[x]) for x in self.solution[1][1]]
         self.genes1 = [str(self.labels[x]) for x in self.solution[0][0]]    
-        self.genes2 = [str(self.labels[x]) for x in self.solution[0][1]]   
+        self.genes2 = [str(self.labels[x]) for x in self.solution[0][1]]
+        self.convert = convert
+        self.origID = origID
+        if convert == True:
+            assert origID != None, "Please specify the original gene ID or set 'convert' to False"
+            
+        
+
     
-    def save(self, output, gene_names = False):
+    def save(self, output):
         '''
         Saves the results in a csv file
         
@@ -39,24 +53,32 @@ class results_analysis():
         '''
         patients1_str = "|".join(self.patients1)
         patients2_str = "|".join(self.patients2)
+        gs1 = self.genes1
+        gs2 = self.genes2
         
-        if gene_names:
+        if self.convert:
             all_genes  = self.genes1 + self.genes2
             mg = mygene.MyGeneInfo()
-            out = mg.querymany(all_genes, scopes='entrezgene', fields='symbol', species='human', verbose = False)
+            out = mg.querymany(all_genes, scopes=self.origID, fields='symbol', species='human', verbose = False)
             mapping =dict()
             rev_mapping = dict()
             for line in out:
-                rev_mapping[line["symbol"]] = line["query"]
-                mapping[line["query"]] = line["symbol"]
-            genes1_name = [mapping[x] for x in self.genes1]
-            genes2_name = [mapping[x] for x in self.genes2]
-        genes1_str = "|".join(genes1_name)
+                try:
+                    rev_mapping[line["symbol"]] = line["query"]
+                    mapping[line["query"]] = line["symbol"]
+                except KeyError:
+                    print("Entities are not found, mapping to gene names can't be performed. Please set 'convert' to False")
+                    self.convert = False
+                    return()
+                    
+            gs1 = [mapping[x] for x in self.genes1]
+            gs2 = [mapping[x] for x in self.genes2]
     
-        genes2_str = "|".join(genes2_name)
+        gs1 = "|".join(gs1)
+        gs2 = "|".join(gs2)
         
         #Saving the solution
-        pd.DataFrame([[genes1_str,genes2_str,patients1_str,patients2_str]],columns = ["genes1","genes2","patients1","patients2"]).to_csv(output)
+        pd.DataFrame([[gs1,gs2,patients1_str,patients2_str]],columns = ["genes1","genes2","patients1","patients2"]).to_csv(output)
     
     def show_networks(self, GE, G, output = None):
         '''
@@ -72,27 +94,41 @@ class results_analysis():
 
         all_genes_entr  =  self.genes1 + self.genes2
         all_genes = self.solution[0][0] + self.solution[0][1]
-        mg = mygene.MyGeneInfo()
-        out = mg.querymany(all_genes_entr, scopes='entrezgene', fields='symbol', species='human', verbose = False)
-        mapping =dict()
-        rev_mapping = dict()
-        for line in out:
-            rev_mapping[line["symbol"]] = line["query"]
-            mapping[line["query"]] = line["symbol"]
-    
-        genes1_name = [mapping[x] for x in self.genes1]
-        genes2_name = [mapping[x] for x in self.genes2]
-        all_genes_names = genes1_name+genes2_name
+        if self.convert:
+            mg = mygene.MyGeneInfo()
+            out = mg.querymany(all_genes_entr, scopes=self.origID, fields='symbol', species='human', verbose = False)
+            mapping =dict()
+            rev_mapping = dict()
+            for line in out:
+                try:
+                    rev_mapping[line["symbol"]] = line["query"]
+                    mapping[line["query"]] = line["symbol"]
+                except KeyError:
+                    print("Entities are not found, mapping to gene names can't be performed. Please set 'convert' to False")
+                    self.convert = False
+                    return()
+            genes1_name = [mapping[x] for x in self.genes1]
+            genes2_name = [mapping[x] for x in self.genes2]
+            all_genes_names = genes1_name+genes2_name
         
         #relabel expression matrix and the graph to the actual patients ids and gene names
         G_small = nx.subgraph(G, all_genes)
         G_small=nx.relabel_nodes(G_small,self.labels)
-        G_small=nx.relabel_nodes(G_small,mapping)
         GE_small = GE[self.solution[1][0]+self.solution[1][1]].loc[all_genes]
-        GE_small.index = all_genes_names
+        if self.convert:
+            GE_small.index = all_genes_names
+            G_small=nx.relabel_nodes(G_small,mapping)
+        else:
+            GE_small.index = all_genes_entr
+            
         GE_small.columns = self.patients1 +self.patients2
         #compute difference in expression for each gene in different patients groups
-        means = list(np.mean(GE_small[self.patients1].loc[all_genes_names],axis = 1)-np.mean(GE_small[self.patients2].loc[all_genes_names],axis = 1).values)
+        if self.convert:
+
+            means = list(np.mean(GE_small[self.patients1].loc[all_genes_names],axis = 1)-np.mean(GE_small[self.patients2].loc[all_genes_names],axis = 1).values)
+        else:
+            means = list(np.mean(GE_small[self.patients1].loc[all_genes_entr],axis = 1)-np.mean(GE_small[self.patients2].loc[all_genes_entr],axis = 1).values)
+
         # set plotting settings
         plt.rc('font', size=20)          # controls default text sizes
         plt.rc('axes', titlesize=20)     # fontsize of the axes title
@@ -142,23 +178,33 @@ class results_analysis():
 
         all_genes_entr  = self.genes1 + self.genes2
         all_genes = self.solution[0][0] + self.solution[0][1]
-        mg = mygene.MyGeneInfo()
-        out = mg.querymany(all_genes_entr, scopes='entrezgene', fields='symbol', species='human', verbose = False)
-        mapping =dict()
-        rev_mapping = dict()
-        for line in out:
-            rev_mapping[line["symbol"]] = line["query"]
-            mapping[line["query"]] = line["symbol"]
-    
-        genes1_name = [mapping[x] for x in self.genes1]
-        genes2_name = [mapping[x] for x in self.genes2]
-        all_genes_names = genes1_name + genes2_name
+        if self.convert:
+
+            mg = mygene.MyGeneInfo()
+            out = mg.querymany(all_genes_entr, scopes='entrezgene', fields='symbol', species='human', verbose = False)
+            mapping =dict()
+            rev_mapping = dict()
+            for line in out:
+                try:
+                    rev_mapping[line["symbol"]] = line["query"]
+                    mapping[line["query"]] = line["symbol"]
+                except KeyError:
+                    print("Entities are not found, mapping to gene names can't be performed. Please set 'convert' to False")
+                    self.convert = False
+                    return()
+            genes1_name = [mapping[x] for x in self.genes1]
+            genes2_name = [mapping[x] for x in self.genes2]
+            all_genes_names = genes1_name + genes2_name
+        else:
+            genes1_name = self.genes1
+            genes2_name = self.genes2
+            all_genes_names = genes1_name+genes2_name
+            
+            
         
         #relabel expression matrix and the graph to the actual patients ids and gene names
-        G_small = nx.subgraph(G, all_genes)
-        G_small=nx.relabel_nodes(G_small,self.labels)
-        G_small=nx.relabel_nodes(G_small,mapping)
         GE_small = GE[self.solution[1][0]+self.solution[1][1]].loc[all_genes]
+
         GE_small.index = all_genes_names
         GE_small.columns = self.patients1 +self.patients2
         # prepare the clustermap
@@ -295,15 +341,21 @@ class results_analysis():
         '''
         libs = gseapy.get_library_name()
         assert library in libs, "the library is not available, check gseapy.get_library_name() for available options"
+        assert (self.convert == True) or (self.origID == "symbol"), "EnrichR accepts only gene names as an input, thus please set 'convert' to True and indicate the original gene ID"
+
         all_genes_entr  = self.genes1 + self.genes2
         mg = mygene.MyGeneInfo()
         out = mg.querymany(all_genes_entr, scopes='entrezgene', fields='symbol', species='human', verbose = False)
         mapping =dict()
         rev_mapping = dict()
         for line in out:
-            rev_mapping[line["symbol"]] = line["query"]
-            mapping[line["query"]] = line["symbol"]
-    
+            try:
+                rev_mapping[line["symbol"]] = line["query"]
+                mapping[line["query"]] = line["symbol"]
+            except KeyError:
+                print("{entities are not found, mapping to gene names will not be performed")
+                self.convert = False
+                return()
         genes1_name = [mapping[x] for x in self.genes1]
         genes2_name = [mapping[x] for x in self.genes2]
         all_genes_names = genes1_name+genes2_name
