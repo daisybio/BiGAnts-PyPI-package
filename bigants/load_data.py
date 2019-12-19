@@ -7,7 +7,7 @@ from scipy import stats
 import networkx as nx
 import csv
 
-def data_preprocessing(path_expr, path_net,log2 = True, zscores = True, size = 2000, no_zero = None):
+def data_preprocessing(path_expr, path_net,log2 = True, zscores = True, size = 2000, no_zero = None, formats = []):
     """
     Raw data processing for further analysis
     
@@ -18,16 +18,27 @@ def data_preprocessing(path_expr, path_net,log2 = True, zscores = True, size = 2
     ATTENTION: expression data format: genes as rows (first column - gene ids), patients as columns
     path_ppi - path for ppi
     log2 - log2 transform (if needed)
-    size -   specify size of the gene set  for standard deviation preselection. USually optimal values are between 2000 and 5000
+    size -   specify size of the gene set  for standard deviation preselection. USually optimal values are between 2000 and 5000\
+    z-scores - indicates if z-scores normalization should be applied (default - True)
+    no_zero - proportion of non-zero elements for each gene. If there are less values then a gene will not be maintained
+    format = list of data types for gene expression matrix and the ppi network. Example ["csv", "tsv"]. Used if the automatic delimeter needs to be ommited
     """
-    
-    expr = open_file(path_expr)
+    if formats[0] == "csv" or formats[0] == "tsv":
+        d_expr = formats[0]
+    else:
+        d_expr == None
+    if formats[1] == "csv" or formats[1] == "tsv":
+        d_ppi = formats[1]
+    else:
+        d_ppi == None
+        
+    expr = open_file(path_expr, d_expr)
     
     expr = expr.set_index(expr.columns[0])
     patients_new = list(set(expr.columns))
     tot_pats = len(patients_new)
         
-    net = open_file(path_net, header = None)
+    net = open_file(path_net, d_ppi, header = None)
     nodes_ppi = list(set(net[0]).union(set(net[1])))
     expr.drop_duplicates(inplace=True)
     genes_ge = list(expr.index)
@@ -94,15 +105,22 @@ def data_preprocessing(path_expr, path_net,log2 = True, zscores = True, size = 2
     return expr,G,labels, rev_labels
 
 # allows to determine the delimeter automatically given the path or directly the object
-def open_file(file_name, **kwards):
-    if isinstance(file_name, str): 
-        with open(file_name, 'r') as csvfile:
-            dialect = csv.Sniffer().sniff(csvfile.read(3000))
-    else: #the file is StringIO
-        file_name.seek(0)
-        dialect = csv.Sniffer().sniff(file_name.read(3000))
-        file_name.seek(0)
-
-    file = pd.read_csv(file_name,sep = dialect.delimiter, low_memory=False, **kwards)
+def open_file(file_name, d, **kwards):
+    if d == None:
+        if isinstance(file_name, str): 
+            with open(file_name, 'r') as csvfile:
+                dialect = csv.Sniffer().sniff(csvfile.read(3000))
+        else: #the file is StringIO
+            file_name.seek(0)
+            dialect = csv.Sniffer().sniff(file_name.read(3000))
+            file_name.seek(0)
+        sp = dialect.delimiter
+    else:
+        if d == "csv":
+            sp = ","
+        if d == "tsv":
+            sp = "\t"
+        
+    file = pd.read_csv(file_name,sep = sp, low_memory=False, **kwards)
     return file
     

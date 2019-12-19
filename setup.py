@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="bigants",
-    version="2.2.0",
+    version="2.2.1",
     author="Olga Lazareva",
     author_email="olga.lazareva@tum.de",
     description="BiGAnts - a package for network-constrained biclustering of omics data",
