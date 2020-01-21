@@ -1,4 +1,5 @@
 # BiGAnts: network-constrained biclustering of patients and multi-omics data
+## ATTENTION: this package is not maintained anymore. For the same functionality please use [BiCoN](https://pypi.org/project/bicon/) package
 ## Table of contents
 * [General info](#general-info)
 * [Installation](#installation)
